@@ -5,11 +5,15 @@ error_reporting(E_ALL);
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use MongoDB\Client as MongoClient;
 
 // Include PHPMailer (correct paths)
 require __DIR__ . '/PHPMailer/src/Exception.php';
 require __DIR__ . '/PHPMailer/src/PHPMailer.php';
 require __DIR__ . '/PHPMailer/src/SMTP.php';
+
+// Include Composer autoload if you installed MongoDB library via Composer
+require __DIR__ . '/vendor/autoload.php';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Sanitize inputs
@@ -34,29 +38,45 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    $mail = new PHPMailer(true);
-
+    // ----------- Store in MongoDB -----------
     try {
-        // SMTP Configuration
+        $mongo = new MongoClient("mongodb://127.0.0.1:27017"); // MongoDB URI
+        $db = $mongo->contact_form_db;                           // Database
+        $collection = $db->submissions;                          // Collection
+
+        $collection->insertOne([
+            'first_name'  => $first_name,
+            'last_name'   => $last_name,
+            'email'       => $email,
+            'phone'       => $phone,
+            'subject'     => $subject_input,
+            'inquiry_type'=> $inquiry_type,
+            'message'     => $message,
+            'date'        => new MongoDB\BSON\UTCDateTime()
+        ]);
+    } catch (Exception $e) {
+        error_log("MongoDB Error: " . $e->getMessage());
+    }
+
+    // ----------- Send Email via PHPMailer -----------
+    $mail = new PHPMailer(true);
+    try {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
-        $mail->Username   = '';     // your Gmail
-        $mail->Password   = '';         // Gmail App password
+        $mail->Username   = 'ayushgnida@gmail.com';
+        $mail->Password   = 'diwlzghmtbysfrkp';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
-        // Sender & recipient
-        $mail->setFrom('ayushgnida@gmail.com', 'Website Contact Form'); // MUST match your Gmail
-        $mail->addAddress('akgnida@gmail.com');                         // Receiver (your second email)
-        $mail->addReplyTo($email, "$first_name $last_name");            // Reply to user
+        $mail->setFrom('ayushgnida@gmail.com', 'Website Contact Form');
+        $mail->addAddress('akgnida@gmail.com');
+        $mail->addReplyTo($email, "$first_name $last_name");
 
-        // Attach file if uploaded
         if (!empty($_FILES['file']['tmp_name']) && is_uploaded_file($_FILES['file']['tmp_name'])) {
             $mail->addAttachment($_FILES['file']['tmp_name'], $_FILES['file']['name']);
         }
 
-        // Email Content
         $mail->isHTML(true);
         $mail->Subject = "New Contact Form Submission - " . $subject_input;
         $mail->Body    = "
@@ -67,7 +87,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <p><strong>Message:</strong><br>" . nl2br($message) . "</p>
         ";
 
-        // Send the email
         $mail->send();
         header("Location: contact.php?status=success");
         exit;
