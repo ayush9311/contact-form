@@ -9,70 +9,173 @@ error_reporting(E_ALL);
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Contact Form</title>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
-body {
-    font-family: Arial, sans-serif;
-    padding: 40px;
-    background-color: #f4f4f4;
-}
-form {
-    background: white;
-    padding: 20px;
-    max-width: 600px;
-    margin: auto;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-label {
-    margin-top: 10px;
-    font-weight: bold;
-    display: block;
-}
-input, select, textarea {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-button {
-    margin-top: 15px;
-    padding: 10px;
-    width: 100%;
-    background-color: #28a745;
-    border: none;
-    color: white;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-.status {
-    text-align: center;
-    max-width: 600px;
-    margin: 10px auto;
-    padding: 10px;
-    border-radius: 6px;
-}
-.success {
-    background-color: #d4edda;
-    color: #155724;
-}
-.error {
-    background-color: #f8d7da;
-    color: #721c24;
-}
-.two-column {
-    display: flex;
-    gap: 10px;
-}
-.two-column div {
-    flex: 1;
-}
+    /* ===== Background with Gradient Animation ===== */
+    body {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(270deg, #6a11cb, #2575fc, #ff6a00, #ee0979);
+        background-size: 800% 800%;
+        animation: gradientShift 18s ease infinite;
+    }
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* ===== Glassmorphism Form Card ===== */
+    form {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 35px;
+        max-width: 650px;
+        width: 100%;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        animation: fadeIn 0.8s ease-in-out;
+        color: white;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 30px;
+        font-weight: 600;
+        color: #fff;
+        letter-spacing: 1px;
+    }
+
+    /* ===== Input Wrapper with Icons ===== */
+    .input-group {
+        position: relative;
+        margin-top: 15px;
+    }
+
+    .input-group i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #fff;
+        opacity: 0.8;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 14px 14px 14px 45px;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        outline: none;
+        box-sizing: border-box;
+        background: rgba(255,255,255,0.2);
+        color: #fff;
+        transition: all 0.3s ease;
+    }
+
+    input::placeholder, textarea::placeholder {
+        color: #ddd;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        background: rgba(255,255,255,0.3);
+        box-shadow: 0 0 10px rgba(255,255,255,0.5);
+    }
+
+    button {
+        margin-top: 25px;
+        padding: 15px;
+        width: 100%;
+        background: linear-gradient(90deg, #ff512f, #dd2476);
+        border: none;
+        color: white;
+        font-size: 18px;
+        font-weight: 600;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+    }
+
+    button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .status {
+        text-align: center;
+        margin-bottom: 20px;
+        padding: 12px;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+    .success {
+        background-color: rgba(40, 167, 69, 0.9);
+        color: #fff;
+    }
+    .error {
+        background-color: rgba(220, 53, 69, 0.9);
+        color: #fff;
+    }
+
+    .two-column {
+        display: flex;
+        gap: 15px;
+    }
+    .two-column .input-group {
+        flex: 1;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 600px) {
+        .two-column {
+            flex-direction: column;
+        }
+    }
 </style>
+
+<script>
+    function validateForm() {
+        let firstName = document.getElementById("first_name").value.trim();
+        let lastName = document.getElementById("last_name").value.trim();
+        let email = document.getElementById("email").value.trim();
+        let phone = document.getElementById("phone").value.trim();
+        let subject = document.getElementById("subject").value.trim();
+        let message = document.getElementById("message").value.trim();
+
+        let emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+        let phonePattern = /^[0-9]{7,15}$/;
+
+        if (firstName === "" || lastName === "" || subject === "" || message === "") {
+            alert("⚠️ Please fill in all required fields.");
+            return false;
+        }
+        if (!email.match(emailPattern)) {
+            alert("⚠️ Please enter a valid email address.");
+            return false;
+        }
+        if (phone !== "" && !phone.match(phonePattern)) {
+            alert("⚠️ Please enter a valid phone number (7–15 digits).");
+            return false;
+        }
+        return true;
+    }
+</script>
 </head>
 <body>
-
-<h2 style="text-align:center;">Contact Us</h2>
 
 <?php if (isset($_GET['status'])): ?>
 <div class="status <?= $_GET['status'] === 'success' ? 'success' : 'error' ?>">
@@ -80,44 +183,57 @@ button {
 </div>
 <?php endif; ?>
 
-<form action="process_form.php" method="POST" enctype="multipart/form-data">
+<form action="process_form.php" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+    <h2>📩 Contact Us</h2>
 
     <div class="two-column">
-        <div>
-            <label for="first_name">First Name:</label>
-            <input type="text" id="first_name" name="first_name" required>
+        <div class="input-group">
+            <i class="fa fa-user"></i>
+            <input type="text" id="first_name" name="first_name" placeholder="First Name" required>
         </div>
-        <div>
-            <label for="last_name">Last Name:</label>
-            <input type="text" id="last_name" name="last_name" required>
+        <div class="input-group">
+            <i class="fa fa-user"></i>
+            <input type="text" id="last_name" name="last_name" placeholder="Last Name" required>
         </div>
     </div>
 
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required>
+    <div class="input-group">
+        <i class="fa fa-envelope"></i>
+        <input type="email" id="email" name="email" placeholder="Email Address" required>
+    </div>
 
-    <label for="phone">Phone Number:</label>
-    <input type="text" id="phone" name="phone">
+    <div class="input-group">
+        <i class="fa fa-phone"></i>
+        <input type="text" id="phone" name="phone" placeholder="Phone Number (Optional)">
+    </div>
 
-    <label for="subject">Subject:</label>
-    <input type="text" id="subject" name="subject" required>
+    <div class="input-group">
+        <i class="fa fa-heading"></i>
+        <input type="text" id="subject" name="subject" placeholder="Subject" required>
+    </div>
 
-    <label for="inquiry_type">Inquiry Type:</label>
-    <select id="inquiry_type" name="inquiry_type">
-        <option value="">-- Select --</option>
-        <option value="General Question">General Question</option>
-        <option value="Support">Support</option>
-        <option value="Feedback">Feedback</option>
-        <option value="Other">Other</option>
-    </select>
+    <div class="input-group">
+        <i class="fa fa-list"></i>
+        <select id="inquiry_type" name="inquiry_type">
+            <option value="">-- Select Inquiry Type --</option>
+            <option value="General Question">General Question</option>
+            <option value="Support">Support</option>
+            <option value="Feedback">Feedback</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
 
-    <label for="message">Message:</label>
-    <textarea id="message" name="message" rows="5" required></textarea>
+    <div class="input-group">
+        <i class="fa fa-comment-dots"></i>
+        <textarea id="message" name="message" rows="5" placeholder="Write your message..." required></textarea>
+    </div>
 
-    <label for="file">Attach a file (optional):</label>
-    <input type="file" id="file" name="file">
+    <div class="input-group">
+        <i class="fa fa-paperclip"></i>
+        <input type="file" id="file" name="file">
+    </div>
 
-    <button type="submit">Send</button>
+    <button type="submit"><i class="fa fa-paper-plane"></i> Send Message</button>
 </form>
 
 </body>
